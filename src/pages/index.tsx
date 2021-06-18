@@ -1,64 +1,43 @@
 import Head from "next/head";
-import { FormEvent, useState } from "react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 
-import useAuth from "../hooks/useAuth";
-
-import styles from "../styles/Home.module.css";
+import styles from "../styles/pages/Home.module.scss";
+import { SignInForm } from "../components/SignInForm";
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { createAuth } = useAuth();
-
-  async function handleCreateUserAuth(event: FormEvent) {
-    event.preventDefault();
-
-    const user = {
-      email,
-      password,
-    };
-
-    await createAuth(user);
-  }
-
   return (
-    <div className={styles.container}>
+    <>
       <Head>
-        <title>littlepaws.</title>
+        <title>Sign in | littlepaws.</title>
       </Head>
-
-      <main className={styles.main}>
-        <div>
-          <h1 className={styles.title}>littlepaws</h1>
-          <p className={styles.description}>Gestão de banho e tosa</p>
-        </div>
-        <form className={styles.card}>
-          <input
-            type="email"
-            placeholder="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-          <div>
-            <button type="submit" onClick={handleCreateUserAuth}>
-              Cadastrar
-            </button>
-            <button type="submit">Entrar</button>
-          </div>
-        </form>
-      </main>
-
-      <footer className={styles.footer}>
-        <a href="#" target="_blank" rel="noopener noreferrer">
-          littlepaws.
-        </a>
-      </footer>
-    </div>
+      <Flex
+        as="main"
+        w="100vw"
+        h="100vh"
+        px="4"
+        align="center"
+        justify="center"
+        direction="column"
+      >
+        <Flex flex="1" align="center" justify="center" direction="column">
+          <Text as="h1" className={styles.title}>
+            littlepaws
+          </Text>
+          <Box
+            className={styles.card}
+            width="100%"
+            maxWidth="390px"
+            background="gray.800"
+          >
+            <SignInForm></SignInForm>
+          </Box>
+        </Flex>
+        <Box as="footer" className={styles.footer}>
+          <a href="#" target="_blank" rel="noopener noreferrer">
+            &copy; todos os direitos reservados.
+          </a>
+        </Box>
+      </Flex>
+    </>
   );
 }
