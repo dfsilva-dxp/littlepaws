@@ -24,18 +24,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(false);
 
   async function signIn({ email, password }: SignInCredentials) {
-    setLoading(true);
-    const response = await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then((response) => response)
-      .catch((err) => console.log(err))
-      .finally(() => {
-        setLoading(false);
-      });
-
-    Router.push("/dashboard");
-    console.log(response);
+    try {
+      setLoading(true);
+      const response = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+        .then((response) => response);
+      Router.push("/dashboard");
+      console.log(response);
+    } catch (err) {
+      setLoading(false);
+      throw new Error(`${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function signOut() {}

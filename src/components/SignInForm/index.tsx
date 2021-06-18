@@ -1,5 +1,8 @@
 import { Button, Flex, Stack } from "@chakra-ui/react";
 import { FormEvent, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../../hooks/useAuth";
 import { Input } from "../Input";
 
@@ -15,10 +18,22 @@ export function SignInForm() {
       email,
       password,
     };
-
-    await signIn(data);
-    setEmail("");
-    setPassword("");
+    try {
+      await signIn(data);
+    } catch (err) {
+      toast.error(err.message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } finally {
+      setEmail("");
+      setPassword("");
+    }
   }
 
   return (
@@ -29,6 +44,8 @@ export function SignInForm() {
           type="email"
           label="E-mail"
           size="lg"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           // error={errors.email}
           // {...register("email")}
         />
@@ -37,6 +54,8 @@ export function SignInForm() {
           type="password"
           label="Password"
           size="lg"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           // error={errors.password}
           // {...register("password")}
         />
@@ -44,6 +63,7 @@ export function SignInForm() {
           Enter
         </Button>
       </Stack>
+      <ToastContainer />
     </Flex>
   );
 }
