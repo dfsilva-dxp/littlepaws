@@ -1,3 +1,4 @@
+import Router from "next/router";
 import { createContext, ReactNode, useState } from "react";
 import firebase from "../services/firebase";
 
@@ -8,9 +9,8 @@ type SignInCredentials = {
 
 type AuthContextData = {
   loading: boolean;
-  signIn: () => Promise<void>;
+  signIn: ({ email, password }: SignInCredentials) => Promise<void>;
   signOut: () => Promise<void>;
-  createAuth: ({ email, password }: SignInCredentials) => void;
 };
 
 type AuthProviderProps = {
@@ -21,23 +21,27 @@ const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  async function signIn() {}
-
-  async function signOut() {}
-
-  async function createAuth({ email, password }: SignInCredentials) {
+  async function signIn({ email, password }: SignInCredentials) {
+    setLoading(true);
     const response = await firebase
       .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((response) => response);
+      .signInWithEmailAndPassword(email, password)
+      .then((response) => response)
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setLoading(false);
+      });
 
+    Router.push("/dashboard");
     console.log(response);
   }
 
+  async function signOut() {}
+
   return (
-    <AuthContext.Provider value={{ loading, signIn, signOut, createAuth }}>
+    <AuthContext.Provider value={{ loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
