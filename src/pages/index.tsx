@@ -1,14 +1,14 @@
 import Head from "next/head";
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useState } from "react";
 
-import AuthContext from "../contexts/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 import styles from "../styles/Home.module.css";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { createAuth } = useContext(AuthContext);
+  const { createAuth } = useAuth();
 
   async function handleCreateUserAuth(event: FormEvent) {
     event.preventDefault();
