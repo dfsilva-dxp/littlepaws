@@ -35,17 +35,6 @@
   align-items: center;
 }
 
-.title a {
-  color: #0070f3;
-  text-decoration: none;
-}
-
-.title a:hover,
-.title a:focus,
-.title a:active {
-  text-decoration: underline;
-}
-
 .title {
   margin: 0;
   line-height: 1.15;
@@ -62,34 +51,18 @@
   font-size: 1.5rem;
 }
 
-.code {
-  background: #fafafa;
-  border-radius: 5px;
-  padding: 0.75rem;
-  font-size: 1.1rem;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-    Bitstream Vera Sans Mono, Courier New, monospace;
-}
-
-.grid {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  max-width: 800px;
-  margin-top: 3rem;
-}
-
 .card {
   margin: 1rem;
   flex-basis: 45%;
-  padding: 1.5rem;
-  text-align: left;
+  padding: 1rem;
   color: inherit;
   text-decoration: none;
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 1rem;
 }
 
 .card:hover,
@@ -97,6 +70,12 @@
 .card:active {
   color: #0070f3;
   border-color: #0070f3;
+}
+
+.card > div {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 .card h3 {
