@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Sign in | littlepaws.</title>
+        <title>littlepaws.</title>
       </Head>
       <Flex
         as="main"

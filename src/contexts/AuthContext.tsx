@@ -1,6 +1,12 @@
 import Router from "next/router";
+import { useEffect } from "react";
 import { createContext, ReactNode, useState } from "react";
 import firebase from "../services/firebase";
+
+type User = {
+  uid: string;
+  email: string;
+};
 
 type SignInCredentials = {
   email: string;
@@ -9,8 +15,10 @@ type SignInCredentials = {
 
 type AuthContextData = {
   loading: boolean;
-  signIn: ({ email, password }: SignInCredentials) => Promise<void>;
-  signOut: () => Promise<void>;
+  isAuthenticated: boolean;
+  user: User;
+  signIn({ email, password }: SignInCredentials): Promise<void>;
+  signOut(): Promise<void>;
 };
 
 type AuthProviderProps = {
@@ -20,8 +28,19 @@ type AuthProviderProps = {
 const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(false);
+  const isAuthenticated = !!user;
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      const { uid, email } = user;
+      if (user) {
+        setUser({ uid, email });
+        // Router.push("/dashboard");
+      }
+    });
+  }, []);
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
@@ -30,8 +49,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .auth()
         .signInWithEmailAndPassword(email, password)
         .then((response) => response);
+
+      const { uid } = response.user;
+
+      setUser({
+        uid,
+        email,
+      });
+
       Router.push("/dashboard");
-      console.log(response);
     } catch (err) {
       setLoading(false);
       throw new Error(`${err.message}`);
@@ -43,7 +69,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function signOut() {}
 
   return (
-    <AuthContext.Provider value={{ loading, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated, loading, signIn, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
