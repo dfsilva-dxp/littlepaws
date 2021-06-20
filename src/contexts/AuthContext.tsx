@@ -34,10 +34,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      const { uid, email } = user;
       if (user) {
+        const { uid, email } = user;
         setUser({ uid, email });
-        // Router.push("/dashboard");
+        Router.push("/dashboard");
+      } else {
+        Router.push("/");
       }
     });
   }, []);
@@ -66,7 +68,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  async function signOut() {}
+  async function signOut() {
+    await firebase.auth().signOut();
+  }
 
   return (
     <AuthContext.Provider
