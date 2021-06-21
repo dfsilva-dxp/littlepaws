@@ -10,7 +10,7 @@ export function withSSRAuth<P>(fn: GetServerSideProps<P>) {
     ctx: GetServerSidePropsContext
   ): Promise<GetServerSidePropsResult<P>> => {
     const cookies = parseCookies(ctx);
-    if (!cookies["littlepaws.token"]) {
+    if (!cookies["littlepaws.refreshToken"]) {
       return {
         redirect: {
           destination: "/",

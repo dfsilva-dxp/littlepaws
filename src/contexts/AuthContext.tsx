@@ -8,7 +8,6 @@ type Customer = {
   email: string;
   refreshToken: string;
   uid: string;
-  token: string;
 };
 
 type SignInCredentials = {
@@ -36,23 +35,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(false);
   const isAuthenticated = !!customer;
 
-  function handleSetCustomer(currentCustomer) {
-    return {
-      email: currentCustomer.email,
-      refreshToken: currentCustomer.refreshToken,
-      uid: currentCustomer.uid,
-      token: currentCustomer.za,
-    };
-  }
-
-  function session(token = "") {
-    if (!!token) {
-      setCookie(undefined, "littlepaws.token", token, {
+  function session(refreshToken = "") {
+    if (!!refreshToken) {
+      setCookie(undefined, "littlepaws.refreshToken", refreshToken, {
         maxAge: 3600, // 1 hours
         path: "/",
       });
     } else {
-      destroyCookie(undefined, "littlepaws.token");
+      destroyCookie(undefined, "littlepaws.refreshToken");
     }
   }
 
@@ -64,9 +54,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .signInWithEmailAndPassword(email, password)
         .then((response) => response);
 
-      setCustomer(handleSetCustomer(response.user));
+      const { refreshToken, uid } = response.user;
 
-      session(customer.token);
+      setCustomer({
+        email,
+        refreshToken,
+        uid,
+      });
+      session(refreshToken);
 
       Router.push("/dashboard");
     } catch (err) {
@@ -80,13 +75,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function signOut() {
     await Router.push("/");
     await firebase.auth().signOut();
-    await session();
+    session();
   }
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((customer) => {
       if (customer) {
-        setCustomer(handleSetCustomer(customer));
+        const { email, refreshToken, uid } = customer;
+        setCustomer({
+          email,
+          refreshToken,
+          uid,
+        });
       } else {
         setCustomer(null);
       }
