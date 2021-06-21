@@ -36,6 +36,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(false);
   const isAuthenticated = !!customer;
 
+  function handleSetCustomer(currentCustomer) {
+    return {
+      email: currentCustomer.email,
+      refreshToken: currentCustomer.refreshToken,
+      uid: currentCustomer.uid,
+      token: currentCustomer.za,
+    };
+  }
+
   function session(token = "") {
     if (!!token) {
       setCookie(undefined, "littlepaws.token", token, {
@@ -55,16 +64,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .signInWithEmailAndPassword(email, password)
         .then((response) => response);
 
-      const { refreshToken, uid, za: token } = response.user;
+      setCustomer(handleSetCustomer(response.user));
 
-      setCustomer({
-        email,
-        refreshToken,
-        uid,
-        token,
-      });
-
-      session(token);
+      session(customer.token);
 
       Router.push("/dashboard");
     } catch (err) {
@@ -84,13 +86,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     firebase.auth().onAuthStateChanged((customer) => {
       if (customer) {
-        const { email, refreshToken, uid, za: token } = customer;
-        setCustomer({
-          email,
-          refreshToken,
-          uid,
-          token,
-        });
+        setCustomer(handleSetCustomer(customer));
       } else {
         setCustomer(null);
       }
