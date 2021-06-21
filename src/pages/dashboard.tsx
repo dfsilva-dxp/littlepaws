@@ -1,24 +1,19 @@
-import { useEffect } from "react";
-
-import firebase from "../services/firebase";
 import useAuth from "../hooks/useAuth";
-import Router from "next/router";
+import { withSSRAuth } from "../utils/withSSRAuth";
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
-
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        Router.push("/");
-      }
-    });
-  }, []);
+  const { customer, signOut } = useAuth();
 
   return (
     <main>
-      <h1>Dashboard: {user?.email}</h1>
-      <button onClick={signOut}>Sign out</button>
+      <h1>Dashboard: {customer?.email}</h1>
+      <button onClick={signOut}>Sair</button>
     </main>
   );
 }
+
+export const getServerSideProps = withSSRAuth(async (ctx) => {
+  return {
+    props: {},
+  };
+});
