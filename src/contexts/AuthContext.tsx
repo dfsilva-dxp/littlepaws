@@ -1,11 +1,14 @@
 import Router from "next/router";
-import { useEffect } from "react";
-import { createContext, ReactNode, useState } from "react";
+import { destroyCookie, setCookie } from "nookies";
+import { createContext, ReactNode, useEffect, useState } from "react";
+
 import firebase from "../services/firebase";
 
-type User = {
-  uid: string;
+type Customer = {
   email: string;
+  refreshToken: string;
+  uid: string;
+  token: string;
 };
 
 type SignInCredentials = {
@@ -16,7 +19,8 @@ type SignInCredentials = {
 type AuthContextData = {
   loading: boolean;
   isAuthenticated: boolean;
-  user: User;
+  customer: Customer;
+  setLoading(value: boolean): void;
   signIn({ email, password }: SignInCredentials): Promise<void>;
   signOut(): Promise<void>;
 };
@@ -28,21 +32,20 @@ type AuthProviderProps = {
 const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User>();
+  const [customer, setCustomer] = useState<Customer>();
   const [loading, setLoading] = useState(false);
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!customer;
 
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        const { uid, email } = user;
-        setUser({ uid, email });
-        Router.push("/dashboard");
-      } else {
-        Router.push("/");
-      }
-    });
-  }, []);
+  function session(token = "") {
+    if (!!token) {
+      setCookie(undefined, "littlepaws.token", token, {
+        maxAge: 3600, // 1 hours
+        path: "/",
+      });
+    } else {
+      destroyCookie(undefined, "littlepaws.token");
+    }
+  }
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
@@ -52,29 +55,58 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .signInWithEmailAndPassword(email, password)
         .then((response) => response);
 
-      const { uid } = response.user;
+      const { refreshToken, uid, za: token } = response.user;
 
-      setUser({
-        uid,
+      setCustomer({
         email,
+        refreshToken,
+        uid,
+        token,
       });
+
+      session(token);
 
       Router.push("/dashboard");
     } catch (err) {
       setLoading(false);
-      throw new Error(`${err.message}`);
+      throw new Error(err.message);
     } finally {
       setLoading(false);
     }
   }
 
   async function signOut() {
+    await Router.push("/");
     await firebase.auth().signOut();
+    await session();
   }
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((customer) => {
+      if (customer) {
+        const { email, refreshToken, uid, za: token } = customer;
+        setCustomer({
+          email,
+          refreshToken,
+          uid,
+          token,
+        });
+      } else {
+        setCustomer(null);
+      }
+    });
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, loading, signIn, signOut }}
+      value={{
+        customer,
+        isAuthenticated,
+        loading,
+        setLoading,
+        signIn,
+        signOut,
+      }}
     >
       {children}
     </AuthContext.Provider>
