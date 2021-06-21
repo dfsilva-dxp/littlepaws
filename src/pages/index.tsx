@@ -3,6 +3,7 @@ import { Box, Flex, Text } from "@chakra-ui/react";
 
 import styles from "../styles/pages/Home.module.scss";
 import { SignInForm } from "../components/SignInForm";
+import React from "react";
 
 export default function Home() {
   return (
@@ -23,13 +24,14 @@ export default function Home() {
           <Text as="h1" className={styles.title}>
             littlepaws
           </Text>
+
           <Box
             className={styles.card}
             width="100%"
             maxWidth="390px"
             background="gray.800"
           >
-            <SignInForm></SignInForm>
+            <SignInForm />
           </Box>
         </Flex>
         <Box as="footer" className={styles.footer}>

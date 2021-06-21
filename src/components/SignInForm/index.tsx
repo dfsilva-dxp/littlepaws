@@ -13,13 +13,11 @@ export function SignInForm() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-
-    const data = {
-      email,
-      password,
-    };
     try {
-      await signIn(data);
+      await signIn({
+        email,
+        password,
+      });
     } catch (err) {
       toast.error(err.message, {
         position: "top-right",
